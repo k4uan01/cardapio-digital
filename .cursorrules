@@ -1,0 +1,28 @@
+## Sobre o projeto
+
+- É um sistema de Cardapio digital web, onde empresas criam seus produtos e os clientes conseguem visualizar.
+- Nome: Cardápio Digital
+
+---
+
+## Stack
+
+- Frontend:
+
+- **TypeScript** (tipagem e lógica)
+- **Next.js** (framework React - roteamento, SSR, otimizações)
+- **Tailwind CSS** (estilização)
+- **Shadcn/ui** (componentes prontos)
+- **React Query/TanStack Query** (gerenciar cache e chamadas de API)
+- **Zod** (validação de dados backend e frontend)
+
+- Backend:
+
+- **Node.js** (runtime JavaScript)
+- **Express** (framework para criar API REST)
+
+- Banco de dados:
+
+- **Supabase** (PostgreSQL + Auth + Storage + Realtime)
+
+---
