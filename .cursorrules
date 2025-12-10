@@ -2,6 +2,7 @@
 
 - É um sistema de Cardapio digital web, onde empresas criam seus produtos e os clientes conseguem visualizar.
 - Nome: Cardápio Digital
+- Cor principal: #0E5CFE
 
 ---
 
@@ -26,3 +27,22 @@
 - **Supabase** (PostgreSQL + Auth + Storage + Realtime)
 
 ---
+
+## Estrutura de pastas e arquivos de modulos
+
+- Sempre que for criar um modulo novo crie uma pasta para ele e dentro pastas de componentes e paginas, exemplo:
+
+register/
+├── components/
+│   ├── RegisterForm.jsx
+│   ├── StepIndicator.jsx
+│   └── SuccessMessage.jsx
+├── pages/
+│   ├── index.jsx
+│   └── confirm.jsx
+
+---
+
+## Nomenclatura 
+
+- Sempre use ingles

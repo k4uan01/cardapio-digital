@@ -77,9 +77,43 @@ npx shadcn-ui@latest add [component-name]
 
 O cliente Supabase está configurado em `lib/supabase/client.ts`. Certifique-se de ter as variáveis de ambiente configuradas corretamente.
 
+## 🚀 Deploy na Vercel
+
+O projeto está pronto para deploy na Vercel! Siga os passos abaixo:
+
+### Pré-requisitos
+- Conta na [Vercel](https://vercel.com)
+- Projeto configurado no Supabase
+
+### Passos para Deploy
+
+1. **Conecte seu repositório à Vercel:**
+   - Acesse [vercel.com](https://vercel.com)
+   - Clique em "Add New Project"
+   - Conecte seu repositório do GitHub/GitLab/Bitbucket
+
+2. **Configure as variáveis de ambiente:**
+   Na Vercel, adicione as seguintes variáveis de ambiente:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+3. **Deploy automático:**
+   - A Vercel detectará automaticamente que é um projeto Next.js
+   - O build será executado automaticamente
+   - Após o deploy, seu projeto estará online!
+
+### Notas Importantes
+
+- ⚠️ O servidor Express (`server/index.js`) não é necessário na Vercel, pois o Next.js já possui API Routes
+- ✅ O projeto já está configurado para usar Next.js API Routes (ex: `app/api/test-supabase/route.ts`)
+- ✅ O build foi testado e está funcionando corretamente
+
 ## 📝 Próximos Passos
 
 1. Configure seu projeto no Supabase
-2. Adicione as variáveis de ambiente no arquivo `.env`
-3. Comece a desenvolver suas funcionalidades!
+2. Adicione as variáveis de ambiente no arquivo `.env` (desenvolvimento) ou na Vercel (produção)
+3. Faça o deploy na Vercel
+4. Comece a desenvolver suas funcionalidades!
 
