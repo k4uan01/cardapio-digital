@@ -14,7 +14,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       } = await supabase.auth.getSession();
 
       if (!session) {
-        router.push("/register");
+        router.push("/");
       }
     };
 
@@ -25,7 +25,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) {
-        router.push("/register");
+        router.push("/");
       }
     });
 

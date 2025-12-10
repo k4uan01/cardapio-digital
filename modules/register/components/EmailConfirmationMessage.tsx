@@ -1,4 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 interface EmailConfirmationMessageProps {
   email: string;
@@ -7,8 +9,30 @@ interface EmailConfirmationMessageProps {
 export function EmailConfirmationMessage({ email }: EmailConfirmationMessageProps) {
   return (
     <Card className="w-full max-w-md">
-      <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+      <CardHeader>
+        <div className="flex items-center gap-2 mb-4">
+          <Link
+            href="/"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <svg
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </Link>
+        </div>
+        <div className="text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
           <svg
             className="h-8 w-8 text-primary"
             fill="none"
@@ -24,10 +48,11 @@ export function EmailConfirmationMessage({ email }: EmailConfirmationMessageProp
             />
           </svg>
         </div>
-        <CardTitle>Conta criada com sucesso!</CardTitle>
-        <CardDescription>
-          Verifique seu email para confirmar sua conta
-        </CardDescription>
+          <CardTitle>Conta criada com sucesso!</CardTitle>
+          <CardDescription>
+            Verifique seu email para confirmar sua conta
+          </CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="rounded-md bg-muted p-4">
@@ -42,6 +67,13 @@ export function EmailConfirmationMessage({ email }: EmailConfirmationMessageProp
           <p>• Verifique sua caixa de entrada</p>
           <p>• Clique no link de confirmação no email</p>
           <p>• Se não encontrar, verifique a pasta de spam</p>
+        </div>
+        <div className="pt-4">
+          <Link href="/">
+            <Button variant="outline" className="w-full">
+              Voltar para login
+            </Button>
+          </Link>
         </div>
       </CardContent>
     </Card>

@@ -7,31 +7,30 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmailConfirmationMessage } from "./EmailConfirmationMessage";
+import Link from "next/link";
 
-const registerSchema = z.object({
+const loginSchema = z.object({
   email: z.string().email("Email inválido"),
-  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+  password: z.string().min(1, "A senha é obrigatória"),
 });
 
-type RegisterFormData = z.infer<typeof registerSchema>;
+type LoginFormData = z.infer<typeof loginSchema>;
 
-export function RegisterForm() {
-  const [formData, setFormData] = useState<RegisterFormData>({
+export function LoginForm() {
+  const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState<Partial<Record<keyof RegisterFormData, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<keyof LoginFormData, string>>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     // Limpar erro do campo quando o usuário começar a digitar
-    if (errors[name as keyof RegisterFormData]) {
+    if (errors[name as keyof LoginFormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
     setErrorMessage("");
@@ -43,12 +42,12 @@ export function RegisterForm() {
     setErrorMessage("");
 
     // Validação com Zod
-    const result = registerSchema.safeParse(formData);
+    const result = loginSchema.safeParse(formData);
     if (!result.success) {
-      const fieldErrors: Partial<Record<keyof RegisterFormData, string>> = {};
+      const fieldErrors: Partial<Record<keyof LoginFormData, string>> = {};
       result.error.errors.forEach((error) => {
         if (error.path[0]) {
-          fieldErrors[error.path[0] as keyof RegisterFormData] = error.message;
+          fieldErrors[error.path[0] as keyof LoginFormData] = error.message;
         }
       });
       setErrors(fieldErrors);
@@ -58,7 +57,7 @@ export function RegisterForm() {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
@@ -68,19 +67,17 @@ export function RegisterForm() {
         return;
       }
 
-      if (data.user) {
-        // Mostrar mensagem de confirmação de email
-        setShowConfirmation(true);
-      }
+      // Recarregar a página para atualizar o estado de autenticação
+      window.location.reload();
     } catch (error) {
-      setErrorMessage("Erro ao criar conta. Tente novamente.");
-      console.error("Registration error:", error);
+      setErrorMessage("Erro ao fazer login. Tente novamente.");
+      console.error("Login error:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSignIn = async () => {
     setIsLoadingGoogle(true);
     setErrorMessage("");
 
@@ -104,16 +101,12 @@ export function RegisterForm() {
     }
   };
 
-  if (showConfirmation) {
-    return <EmailConfirmationMessage email={formData.email} />;
-  }
-
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Criar Conta</CardTitle>
+        <CardTitle>Entrar</CardTitle>
         <CardDescription>
-          Preencha os dados abaixo para criar sua conta
+          Entre com sua conta para continuar
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -122,7 +115,7 @@ export function RegisterForm() {
             type="button"
             variant="outline"
             className="w-full"
-            onClick={handleGoogleSignUp}
+            onClick={handleGoogleSignIn}
             disabled={isLoading || isLoadingGoogle}
           >
             <svg
@@ -163,50 +156,65 @@ export function RegisterForm() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="seu@email.com"
-              value={formData.email}
-              onChange={handleChange}
-              disabled={isLoading}
-              className={errors.email ? "border-red-500" : ""}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="Mínimo 6 caracteres"
-              value={formData.password}
-              onChange={handleChange}
-              disabled={isLoading}
-              className={errors.password ? "border-red-500" : ""}
-            />
-            {errors.password && (
-              <p className="text-sm text-red-500">{errors.password}</p>
-            )}
-          </div>
-
-          {errorMessage && (
-            <div className="rounded-md bg-red-50 p-3">
-              <p className="text-sm text-red-800">{errorMessage}</p>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="seu@email.com"
+                value={formData.email}
+                onChange={handleChange}
+                disabled={isLoading || isLoadingGoogle}
+                className={errors.email ? "border-red-500" : ""}
+              />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email}</p>
+              )}
             </div>
-          )}
 
-          <Button type="submit" className="w-full" disabled={isLoading || isLoadingGoogle}>
-            {isLoading ? "Criando conta..." : "Criar Conta"}
-          </Button>
-        </form>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Senha</Label>
+                <Link
+                  href="/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
+                  Esqueceu a senha?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="Digite sua senha"
+                value={formData.password}
+                onChange={handleChange}
+                disabled={isLoading || isLoadingGoogle}
+                className={errors.password ? "border-red-500" : ""}
+              />
+              {errors.password && (
+                <p className="text-sm text-red-500">{errors.password}</p>
+              )}
+            </div>
+
+            {errorMessage && (
+              <div className="rounded-md bg-red-50 p-3">
+                <p className="text-sm text-red-800">{errorMessage}</p>
+              </div>
+            )}
+
+            <Button type="submit" className="w-full" disabled={isLoading || isLoadingGoogle}>
+              {isLoading ? "Entrando..." : "Entrar"}
+            </Button>
+          </form>
+
+          <div className="text-center text-sm text-muted-foreground">
+            Não tem uma conta?{" "}
+            <Link href="/register" className="text-primary hover:underline">
+              Criar conta
+            </Link>
+          </div>
         </div>
       </CardContent>
     </Card>
