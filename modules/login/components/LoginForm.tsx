@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { useSubscriptionCheck } from "@/lib/hooks/useSubscriptionCheck";
 
 const loginSchema = z.object({
   email: z.string().email("Email inválido"),
@@ -17,6 +19,8 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
+  const router = useRouter();
+  const { checkSubscription } = useSubscriptionCheck();
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
     password: "",
@@ -64,15 +68,22 @@ export function LoginForm() {
 
       if (error) {
         setErrorMessage(error.message);
+        setIsLoading(false);
         return;
       }
 
-      // Recarregar a página para atualizar o estado de autenticação
-      window.location.reload();
+      // Verificar assinatura após login bem-sucedido
+      const subscriptionData = await checkSubscription();
+      
+      // Redirecionar baseado no status da assinatura
+      if (subscriptionData?.data?.is_active) {
+        router.push("/home");
+      } else {
+        router.push("/plans");
+      }
     } catch (error) {
       setErrorMessage("Erro ao fazer login. Tente novamente.");
       console.error("Login error:", error);
-    } finally {
       setIsLoading(false);
     }
   };
