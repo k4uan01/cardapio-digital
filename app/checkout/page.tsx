@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { CheckoutForm } from "@/modules/checkout/components/CheckoutForm";
 import { AuthGuard } from "@/components/AuthGuard";
 import { Button } from "@/components/ui/button";
@@ -48,7 +49,15 @@ export default function CheckoutPage() {
             Sair
           </Button>
         </div>
-        <CheckoutForm />
+        <Suspense fallback={
+          <div className="flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-lg">Carregando...</div>
+            </div>
+          </div>
+        }>
+          <CheckoutForm />
+        </Suspense>
       </main>
     </AuthGuard>
   );
