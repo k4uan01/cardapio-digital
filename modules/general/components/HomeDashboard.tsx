@@ -123,6 +123,40 @@ export function HomeDashboard() {
           </CardContent>
         </Card>
 
+        {/* Faturas */}
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <svg
+                className="h-5 w-5 text-primary"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Faturas
+            </CardTitle>
+            <CardDescription>
+              Visualize e gerencie suas faturas de assinatura
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => router.push("/subscriptions/invoices")}
+            >
+              Ver Faturas
+            </Button>
+          </CardContent>
+        </Card>
+
         {/* Configurações */}
         <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>
