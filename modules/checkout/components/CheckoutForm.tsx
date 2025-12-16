@@ -15,6 +15,15 @@ const checkoutSchema = z.object({
     const cleaned = val.replace(/\D/g, "");
     return cleaned.length === 11 || cleaned.length === 14;
   }, "CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos"),
+  postalCode: z.string().min(1, "CEP é obrigatório").refine((val) => {
+    const cleaned = val.replace(/\D/g, "");
+    return cleaned.length === 8;
+  }, "CEP deve ter 8 dígitos"),
+  addressNumber: z.string().min(1, "Número do endereço é obrigatório"),
+  phone: z.string().min(1, "Telefone é obrigatório").refine((val) => {
+    const cleaned = val.replace(/\D/g, "");
+    return cleaned.length >= 10 && cleaned.length <= 11;
+  }, "Telefone deve ter 10 ou 11 dígitos"),
   cardNumber: z.string().refine((val) => {
     const cleaned = val.replace(/\s/g, "");
     return cleaned.length >= 13 && cleaned.length <= 19;
@@ -34,6 +43,9 @@ export function CheckoutForm() {
   const [formData, setFormData] = useState<CheckoutFormData>({
     fullName: "",
     document: "",
+    postalCode: "",
+    addressNumber: "",
+    phone: "",
     cardNumber: "",
     month: "",
     year: "",
@@ -73,6 +85,33 @@ export function CheckoutForm() {
     if (name === "cardNumber") {
       formattedValue = value.replace(/\D/g, "").slice(0, 19);
       formattedValue = formattedValue.replace(/(\d{4})(?=\d)/g, "$1 ");
+    }
+
+    // Formatação de CEP
+    if (name === "postalCode") {
+      formattedValue = value.replace(/\D/g, "").slice(0, 8);
+      if (formattedValue.length > 5) {
+        formattedValue = formattedValue.replace(/(\d{5})(\d)/, "$1-$2");
+      }
+    }
+
+    // Formatação do número do endereço
+    if (name === "addressNumber") {
+      formattedValue = value.trim();
+    }
+
+    // Formatação do telefone
+    if (name === "phone") {
+      const cleaned = value.replace(/\D/g, "").slice(0, 11);
+      if (cleaned.length <= 2) {
+        formattedValue = cleaned;
+      } else if (cleaned.length <= 6) {
+        formattedValue = cleaned.replace(/(\d{2})(\d+)/, "($1) $2");
+      } else if (cleaned.length <= 10) {
+        formattedValue = cleaned.replace(/(\d{2})(\d{4})(\d+)/, "($1) $2-$3");
+      } else {
+        formattedValue = cleaned.replace(/(\d{2})(\d{5})(\d+)/, "($1) $2-$3");
+      }
     }
 
     // Formatação do CVV
@@ -120,6 +159,8 @@ export function CheckoutForm() {
     const dataToValidate = {
       ...formData,
       document: formData.document.replace(/\D/g, ""),
+      postalCode: formData.postalCode.replace(/\D/g, ""),
+      phone: formData.phone.replace(/\D/g, ""),
       cardNumber: formData.cardNumber.replace(/\s/g, ""),
     };
 
@@ -191,10 +232,20 @@ export function CheckoutForm() {
 
       // Preparar dados do cartão (sem formatação para a API)
       const cardData = {
+        holder_name: dataToValidate.fullName,
         number: dataToValidate.cardNumber,
         expiry_month: dataToValidate.month,
         expiry_year: dataToValidate.year,
         ccv: dataToValidate.cvv,
+      };
+
+      // Preparar dados do titular do cartão
+      const creditCardHolderInfo = {
+        name: dataToValidate.fullName,
+        cpf_cnpj: dataToValidate.document,
+        postal_code: dataToValidate.postalCode,
+        address_number: formData.addressNumber.trim(),
+        phone: dataToValidate.phone,
       };
 
       // Chamar edge function para criar assinatura no Asaas
@@ -211,6 +262,7 @@ export function CheckoutForm() {
             plan_id: finalPlanId,
             company_id: companyData.data.id,
             card: cardData,
+            credit_card_holder_info: creditCardHolderInfo,
           }),
         }
       );
@@ -317,6 +369,62 @@ export function CheckoutForm() {
             />
             {errors.document && (
               <p className="text-sm text-red-500">{errors.document}</p>
+            )}
+          </div>
+
+          {/* CEP e Número do Endereço */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="postalCode">CEP</Label>
+              <Input
+                id="postalCode"
+                name="postalCode"
+                type="text"
+                placeholder="00000-000"
+                value={formData.postalCode}
+                onChange={handleChange}
+                disabled={isLoading}
+                className={errors.postalCode ? "border-red-500" : ""}
+                maxLength={9}
+              />
+              {errors.postalCode && (
+                <p className="text-sm text-red-500">{errors.postalCode}</p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="addressNumber">Número do Endereço</Label>
+              <Input
+                id="addressNumber"
+                name="addressNumber"
+                type="text"
+                placeholder="123"
+                value={formData.addressNumber}
+                onChange={handleChange}
+                disabled={isLoading}
+                className={errors.addressNumber ? "border-red-500" : ""}
+              />
+              {errors.addressNumber && (
+                <p className="text-sm text-red-500">{errors.addressNumber}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Telefone */}
+          <div className="space-y-2">
+            <Label htmlFor="phone">Telefone</Label>
+            <Input
+              id="phone"
+              name="phone"
+              type="text"
+              placeholder="(00) 00000-0000"
+              value={formData.phone}
+              onChange={handleChange}
+              disabled={isLoading}
+              className={errors.phone ? "border-red-500" : ""}
+              maxLength={15}
+            />
+            {errors.phone && (
+              <p className="text-sm text-red-500">{errors.phone}</p>
             )}
           </div>
 
